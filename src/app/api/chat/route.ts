@@ -3,14 +3,7 @@ import OpenAI from 'openai'
 import { PrismaClient } from '@prisma/client'
 import crypto from 'crypto-js'
 
-// Import tiktoken dynamically to handle WASM loading issues
-let tiktokenModule: any = null
-try {
-  // This will be handled in runtime
-  tiktokenModule = require('tiktoken')
-} catch (error) {
-  console.warn('tiktoken not available:', error)
-}
+// Use fallback tokenization approach without tiktoken
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -45,27 +38,16 @@ export async function POST(request: NextRequest) {
       const tokensOut = response.usage?.completion_tokens || 0
       const content = response.choices[0]?.message?.content || ''
 
-      // Get token breakdown for visualization
-      let promptTokens: number[] = []
-      let responseTokens: number[] = []
-      
-      try {
-        if (tiktokenModule && tiktokenModule.encoding_for_model) {
-          const encoding = tiktokenModule.encoding_for_model(model)
-          promptTokens = encoding.encode(prompt)
-          responseTokens = encoding.encode(content)
-          encoding.free()
-        } else {
-          // Fallback: create approximate token arrays based on token counts
-          console.log('Using fallback token visualization')
-          promptTokens = Array.from({length: tokensIn}, (_, i) => i)
-          responseTokens = Array.from({length: tokensOut}, (_, i) => i + tokensIn)
-        }
-      } catch (encodingError) {
-        console.error('Token encoding error:', encodingError)
-        // Fallback: create approximate token arrays
-        promptTokens = Array.from({length: tokensIn}, (_, i) => i)
-        responseTokens = Array.from({length: tokensOut}, (_, i) => i + tokensIn)
+      // Get token breakdown for visualization using fallback approach
+      // Create token arrays based on OpenAI's token counts
+      const promptTokens = Array.from({length: tokensIn}, (_, i) => i)
+      const responseTokens = Array.from({length: tokensOut}, (_, i) => i + tokensIn)
+
+      const tokenBreakdownData = {
+        prompt: promptTokens,
+        response: responseTokens,
+        promptText: prompt,
+        responseText: content,
       }
 
       await prisma.metric.create({
@@ -77,6 +59,9 @@ export async function POST(request: NextRequest) {
           tokensOut,
           latencyMs,
           status: 'ok',
+          promptText: prompt,
+          responseText: content,
+          tokenBreakdown: JSON.stringify(tokenBreakdownData),
         },
       })
 

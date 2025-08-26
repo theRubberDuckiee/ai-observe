@@ -10,6 +10,15 @@ export async function GET() {
       take: 50,
     })
 
+    // Get the most recent successful request with token breakdown
+    const latestSuccessfulRequest = await prisma.metric.findFirst({
+      where: {
+        status: 'ok',
+        tokenBreakdown: { not: null },
+      },
+      orderBy: { createdAt: 'desc' },
+    })
+
     const totalRequests = await prisma.metric.count()
     const successfulRequests = await prisma.metric.count({
       where: { status: 'ok' },
@@ -43,13 +52,28 @@ export async function GET() {
       avgLatencyMs: Math.round(avgLatency._avg.latencyMs || 0),
     }
 
+    let latestTokenBreakdown = null
+    let latestModel = null
+    
+    if (latestSuccessfulRequest?.tokenBreakdown) {
+      try {
+        latestTokenBreakdown = JSON.parse(latestSuccessfulRequest.tokenBreakdown)
+        latestModel = latestSuccessfulRequest.model
+      } catch (e) {
+        console.error('Failed to parse token breakdown:', e)
+      }
+    }
+
     return NextResponse.json({
       recentRequests,
       stats,
+      latestTokenBreakdown,
+      latestModel,
     })
   } catch (error) {
+    console.error('Metrics API error:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     )
   } finally {

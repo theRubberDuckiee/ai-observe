@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import Dashboard from '@/components/Dashboard'
-import TokenVisualization from '@/components/TokenVisualization'
 
 const MODELS = [
   'gpt-4o',
@@ -16,7 +15,6 @@ export default function Home() {
   const [response, setResponse] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [metrics, setMetrics] = useState<any>(null)
-  const [tokenBreakdown, setTokenBreakdown] = useState<any>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -43,10 +41,8 @@ export default function Home() {
           tokensOut: data.tokensOut,
           latencyMs: data.latencyMs,
         })
-        setTokenBreakdown(data.tokenBreakdown)
       } else {
         setResponse(`Error: ${data.error}`)
-        setTokenBreakdown(null)
       }
     } catch (error) {
       setResponse('Error: Failed to send request')
@@ -61,20 +57,20 @@ export default function Home() {
         <h1 className="text-3xl font-bold text-gray-900 mb-8" style={{ color: '#ffffff' }}>AI Observe</h1>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="bg-white p-6 rounded-lg shadow" style={{ backgroundColor: '#111111', border: '1px solid #333333' }}>
-            <h2 className="text-xl font-semibold mb-4" style={{ color: '#ffffff' }}>Send Prompt</h2>
+          <div className="border border-white p-6 rounded-lg">
+            <h2 className="text-xl font-semibold mb-4 text-white">Send Prompt</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-white mb-2">
                   Model
                 </label>
                 <select
                   value={model}
                   onChange={(e) => setModel(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-white bg-black text-white rounded-md focus:outline-none focus:ring-2 focus:ring-white"
                 >
                   {MODELS.map((m) => (
-                    <option key={m} value={m}>
+                    <option key={m} value={m} style={{ backgroundColor: '#000000', color: '#ffffff' }}>
                       {m}
                     </option>
                   ))}
@@ -82,26 +78,26 @@ export default function Home() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-white mb-2">
                   Prompt
                 </label>
                 <textarea
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
                   rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-white bg-black text-white rounded-md focus:outline-none focus:ring-2 focus:ring-white"
                   placeholder="Enter your prompt..."
+                  style={{ backgroundColor: '#000000', color: '#ffffff' }}
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={isLoading || !prompt.trim()}
-                className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400"
+                className="w-full py-2 px-4 rounded-md border border-white"
                 style={{ 
-                  backgroundColor: isLoading || !prompt.trim() ? '#444444' : '#ffffff',
-                  color: isLoading || !prompt.trim() ? '#888888' : '#000000',
-                  border: '1px solid #666666'
+                  backgroundColor: isLoading || !prompt.trim() ? '#333333' : '#ffffff',
+                  color: isLoading || !prompt.trim() ? '#888888' : '#000000'
                 }}
               >
                 {isLoading ? 'Sending...' : 'Send'}
@@ -110,29 +106,28 @@ export default function Home() {
 
             {response && (
               <div className="mt-6">
-                <h3 className="text-lg font-semibold mb-2">Response</h3>
-                <div className="bg-gray-100 p-4 rounded-md">
-                  <pre className="whitespace-pre-wrap text-sm">{response}</pre>
+                <h3 className="text-lg font-semibold mb-2 text-white">Response</h3>
+                <div className="bg-black border border-white p-4 rounded-md">
+                  <pre className="whitespace-pre-wrap text-sm text-white">{response}</pre>
                 </div>
                 {metrics && (
                   <div className="mt-4 grid grid-cols-3 gap-4 text-sm">
-                    <div>
+                    <div className="text-white">
                       <span className="font-medium">Tokens In:</span> {metrics.tokensIn}
                     </div>
-                    <div>
+                    <div className="text-white">
                       <span className="font-medium">Tokens Out:</span> {metrics.tokensOut}
                     </div>
-                    <div>
+                    <div className="text-white">
                       <span className="font-medium">Latency:</span> {metrics.latencyMs}ms
                     </div>
                   </div>
                 )}
-                <TokenVisualization tokenBreakdown={tokenBreakdown} model={model} />
               </div>
             )}
           </div>
 
-          <div className="bg-white p-6 rounded-lg shadow" style={{ backgroundColor: '#111111', border: '1px solid #333333' }}>
+          <div className="border border-white p-6 rounded-lg">
             <Dashboard />
           </div>
         </div>

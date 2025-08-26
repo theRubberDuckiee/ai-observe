@@ -14,14 +14,17 @@ datasource db {
 }
 
 model Metric {
-  id          String   @id @default(cuid())
-  createdAt   DateTime @default(now())
-  model       String
-  promptHash  String
-  promptChars Int
-  tokensIn    Int
-  tokensOut   Int
-  latencyMs   Int
-  status      String   // "ok" | "error"
-  error       String?
+  id           String   @id @default(cuid())
+  createdAt    DateTime @default(now())
+  model        String
+  promptHash   String
+  promptChars  Int
+  tokensIn     Int
+  tokensOut    Int
+  latencyMs    Int
+  status       String   // "ok" | "error"
+  error        String?
+  promptText   String?
+  responseText String?
+  tokenBreakdown String? // JSON string of token breakdown
 }

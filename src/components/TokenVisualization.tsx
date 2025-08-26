@@ -14,22 +14,16 @@ const Tooltip = ({ children, content }: { children: React.ReactNode, content: st
     >
       {children}
       {showTooltip && (
-        <div className="absolute z-50 px-2 py-1 text-xs text-white bg-gray-900 rounded shadow-lg -top-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+        <div className="absolute z-50 px-2 py-1 text-xs text-black bg-white border border-white rounded shadow-lg -top-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
           {content}
-          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-white"></div>
         </div>
       )}
     </div>
   )
 }
 
-// Dynamically import tiktoken to handle WASM issues
-let tiktokenModule: any = null
-try {
-  tiktokenModule = require('tiktoken')
-} catch (error) {
-  console.warn('tiktoken not available in client:', error)
-}
+// Use text-based tokenization fallback only to avoid WASM issues
 
 interface TokenBreakdown {
   prompt: number[]
@@ -50,19 +44,9 @@ export default function TokenVisualization({ tokenBreakdown, model }: TokenVisua
     return null
   }
 
+  // Simple token ID display - no tiktoken needed
   const decodeToken = (tokenId: number): string => {
-    try {
-      if (tiktokenModule && tiktokenModule.encoding_for_model) {
-        const encoding = tiktokenModule.encoding_for_model(model as any)
-        const decoded = encoding.decode([tokenId])
-        encoding.free()
-        return decoded
-      } else {
-        return `Token ${tokenId}`
-      }
-    } catch (error) {
-      return `Token ${tokenId}`
-    }
+    return `Token ${tokenId}`
   }
 
   // Create actual token text breakdown from the original text
@@ -130,21 +114,18 @@ export default function TokenVisualization({ tokenBreakdown, model }: TokenVisua
   const responseTokenTexts = createTokenTextBreakdown(tokenBreakdown.responseText, tokenBreakdown.response.length)
 
   const getTokenColor = (index: number, isPrompt: boolean): string => {
-    if (isPrompt) {
-      return `hsl(${90 + (index * 20) % 80}, 70%, 85%)`
-    } else {
-      return `hsl(${120 + (index * 15) % 60}, 70%, 85%)`
-    }
+    // Alternating white and light gray for visibility on black background
+    return index % 2 === 0 ? '#ffffff' : '#cccccc'
   }
 
   return (
-    <div className="mt-4 border border-gray-200 rounded-lg">
+    <div className="mt-4 border border-white rounded-lg">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full px-4 py-3 text-left bg-gray-50 hover:bg-gray-100 rounded-t-lg flex justify-between items-center"
+        className="w-full px-4 py-3 text-left bg-black border border-white hover:bg-gray-900 rounded-t-lg flex justify-between items-center"
       >
-        <span className="font-medium">Token Breakdown</span>
-        <span className="text-sm text-gray-500">
+        <span className="font-medium text-white">Token Breakdown</span>
+        <span className="text-sm text-gray-400">
           {isExpanded ? '▼' : '▶'} {tokenBreakdown.prompt.length + tokenBreakdown.response.length} tokens
         </span>
       </button>
@@ -153,27 +134,19 @@ export default function TokenVisualization({ tokenBreakdown, model }: TokenVisua
         <div className="p-4 space-y-4">
           {/* Prompt Tokens */}
           <div>
-            <h4 className="font-medium text-sm text-gray-700 mb-2">
+            <h4 className="font-medium text-sm text-white mb-2">
               Prompt Tokens ({tokenBreakdown.prompt.length})
             </h4>
-            <div className="bg-blue-50 p-3 rounded border">
+            <div className="bg-black border border-white p-3 rounded">
               <div className="flex flex-wrap gap-1">
                 {tokenBreakdown.prompt.map((tokenId, index) => {
-                  // Always prioritize our fallback text breakdown over tiktoken fallback
-                  const tokenText = (tiktokenModule && tiktokenModule.encoding_for_model) 
-                    ? decodeToken(tokenId) 
-                    : (promptTokenTexts[index] || `Token ${index}`);
-                  
-                  // If tiktoken failed and returned a generic token, use our breakdown instead
-                  const displayText = tokenText.startsWith('Token ') && promptTokenTexts[index] 
-                    ? promptTokenTexts[index] 
-                    : tokenText;
-                    
-                  const tooltipContent = `"${displayText}" | Token #${index + 1} (ID: ${tokenId})`;
+                  // Use text-based breakdown
+                  const displayText = promptTokenTexts[index] || `Token ${index}`;
+                  const tooltipContent = `\"${displayText}\" | Token #${index + 1} (ID: ${tokenId})`;
                   return (
                     <Tooltip key={`prompt-${index}`} content={tooltipContent}>
                       <span
-                        className="inline-block px-2 py-1 text-xs border border-blue-200 rounded cursor-pointer"
+                        className="inline-block px-2 py-1 text-xs border border-white rounded cursor-pointer"
                         style={{ 
                           backgroundColor: getTokenColor(index, true),
                           color: '#000000',
@@ -186,7 +159,7 @@ export default function TokenVisualization({ tokenBreakdown, model }: TokenVisua
                   );
                 })}
               </div>
-              <div className="text-xs text-gray-600 mt-2">
+              <div className="text-xs text-gray-400 mt-2">
                 Original: "{tokenBreakdown.promptText}"
               </div>
             </div>
@@ -194,27 +167,19 @@ export default function TokenVisualization({ tokenBreakdown, model }: TokenVisua
 
           {/* Response Tokens */}
           <div>
-            <h4 className="font-medium text-sm text-gray-700 mb-2">
+            <h4 className="font-medium text-sm text-white mb-2">
               Response Tokens ({tokenBreakdown.response.length})
             </h4>
-            <div className="bg-green-50 p-3 rounded border max-h-64 overflow-y-auto">
+            <div className="bg-black border border-white p-3 rounded max-h-64 overflow-y-auto">
               <div className="flex flex-wrap gap-1">
                 {tokenBreakdown.response.map((tokenId, index) => {
-                  // Always prioritize our fallback text breakdown over tiktoken fallback
-                  const tokenText = (tiktokenModule && tiktokenModule.encoding_for_model) 
-                    ? decodeToken(tokenId) 
-                    : (responseTokenTexts[index] || `Token ${index}`);
-                  
-                  // If tiktoken failed and returned a generic token, use our breakdown instead
-                  const displayText = tokenText.startsWith('Token ') && responseTokenTexts[index] 
-                    ? responseTokenTexts[index] 
-                    : tokenText;
-                    
-                  const tooltipContent = `"${displayText}" | Token #${index + 1} (ID: ${tokenId})`;
+                  // Use text-based breakdown
+                  const displayText = responseTokenTexts[index] || `Token ${index}`;
+                  const tooltipContent = `\"${displayText}\" | Token #${index + 1} (ID: ${tokenId})`;
                   return (
                     <Tooltip key={`response-${index}`} content={tooltipContent}>
                       <span
-                        className="inline-block px-2 py-1 text-xs border border-green-200 rounded cursor-pointer"
+                        className="inline-block px-2 py-1 text-xs border border-white rounded cursor-pointer"
                         style={{ 
                           backgroundColor: getTokenColor(index, false),
                           color: '#000000',
@@ -227,23 +192,23 @@ export default function TokenVisualization({ tokenBreakdown, model }: TokenVisua
                   );
                 })}
               </div>
-              <div className="text-xs text-gray-600 mt-2">
+              <div className="text-xs text-gray-400 mt-2">
                 Original: "{tokenBreakdown.responseText.substring(0, 100)}..."
               </div>
             </div>
           </div>
 
           {/* Summary */}
-          <div className="bg-gray-50 p-3 rounded text-sm">
+          <div className="bg-black border border-white p-3 rounded text-sm">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <span className="font-medium">Prompt:</span> {tokenBreakdown.prompt.length} tokens
+                <span className="font-medium text-white">Prompt:</span> <span className="text-white">{tokenBreakdown.prompt.length} tokens</span>
               </div>
               <div>
-                <span className="font-medium">Response:</span> {tokenBreakdown.response.length} tokens
+                <span className="font-medium text-white">Response:</span> <span className="text-white">{tokenBreakdown.response.length} tokens</span>
               </div>
             </div>
-            <div className="mt-2 text-gray-600 text-xs">
+            <div className="mt-2 text-gray-400 text-xs">
               Each colored box represents one token showing the actual text content. Hover over tokens to see details and numeric IDs.
             </div>
           </div>
