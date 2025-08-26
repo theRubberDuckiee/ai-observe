@@ -1,0 +1,49 @@
+graph TB
+    %% User Interface Layer
+    User[👤 User] --> WebApp[🌐 Next.js Web App<br/>Port 3000]
+    
+    %% Frontend Components
+    subgraph "Frontend Components"
+        WebApp --> MainPage[📱 Main Page<br/>page.tsx]
+        MainPage --> Dashboard[📊 Dashboard<br/>Dashboard.tsx]
+        MainPage --> TokenViz[🔍 Token Visualization<br/>TokenVisualization.tsx]
+    end
+    
+    %% API Layer
+    subgraph "API Routes"
+        WebApp --> ChatAPI[💬 /api/chat<br/>route.ts]
+        WebApp --> MetricsAPI[📈 /api/metrics<br/>route.ts]
+    end
+    
+    %% External Services
+    ChatAPI --> OpenAI[🤖 OpenAI API<br/>GPT Models]
+    ChatAPI --> TikToken[🎯 tiktoken<br/>Token Encoding]
+    
+    %% Database Layer
+    subgraph "Database"
+        ChatAPI --> Prisma[🗃️ Prisma ORM]
+        MetricsAPI --> Prisma
+        Prisma --> SQLite[(📁 SQLite DB<br/>dev.db)]
+    end
+    
+    %% Data Flow
+    ChatAPI --> |Stores Metrics| SQLite
+    MetricsAPI --> |Retrieves Stats| SQLite
+    Dashboard --> |Fetches Data| MetricsAPI
+    TokenViz --> |Displays Tokens| MainPage
+    
+    %% Metrics Model
+    subgraph "Metric Schema"
+        SQLite --> MetricModel[📋 Metric Model<br/>- model: String<br/>- promptHash: String<br/>- tokensIn/Out: Int<br/>- latencyMs: Int<br/>- status: String]
+    end
+    
+    %% Styling
+    classDef frontend fill:#1f2937,stroke:#e5e7eb,stroke-width:2px,color:#ffffff
+    classDef api fill:#374151,stroke:#e5e7eb,stroke-width:2px,color:#ffffff
+    classDef external fill:#4b5563,stroke:#e5e7eb,stroke-width:2px,color:#ffffff
+    classDef database fill:#6b7280,stroke:#e5e7eb,stroke-width:2px,color:#ffffff
+    
+    class WebApp,MainPage,Dashboard,TokenViz frontend
+    class ChatAPI,MetricsAPI api
+    class OpenAI,TikToken external
+    class Prisma,SQLite,MetricModel database

@@ -1,8 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #000000;
+  --foreground: #ffffff;
+  --card-background: #111111;
+  --border-color: #333333;
+  --accent-color: #ffffff;
+  --muted-text: #cccccc;
 }
 
 @theme inline {
@@ -12,15 +16,129 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* High contrast dark theme styles */
+.bg-gray-50 {
+  background-color: #000000 !important;
+}
+
+.bg-white {
+  background-color: #111111 !important;
+}
+
+.text-gray-900 {
+  color: #ffffff !important;
+}
+
+.text-gray-700 {
+  color: #cccccc !important;
+}
+
+.text-gray-600 {
+  color: #bbbbbb !important;
+}
+
+.text-gray-500 {
+  color: #aaaaaa !important;
+}
+
+.bg-gray-100 {
+  background-color: #222222 !important;
+  color: #ffffff !important;
+}
+
+.border-gray-300 {
+  border-color: #444444 !important;
+}
+
+.shadow {
+  box-shadow: 0 4px 6px -1px rgba(255, 255, 255, 0.1), 0 2px 4px -1px rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Form controls */
+input, textarea, select {
+  background-color: #222222 !important;
+  color: #ffffff !important;
+  border-color: #444444 !important;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: #666666 !important;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Colored backgrounds for stats cards */
+.bg-blue-50 {
+  background-color: #1a1a2e !important;
+  border: 1px solid #333366 !important;
+}
+
+.bg-green-50 {
+  background-color: #0f2027 !important;
+  border: 1px solid #2d5a4a !important;
+}
+
+.bg-purple-50 {
+  background-color: #2a1a3a !important;
+  border: 1px solid #4a3366 !important;
+}
+
+.bg-orange-50 {
+  background-color: #3a2a1a !important;
+  border: 1px solid #665533 !important;
+}
+
+.bg-red-50 {
+  background-color: #3a1a1a !important;
+  border: 1px solid #663333 !important;
+}
+
+.text-blue-600 {
+  color: #66aaff !important;
+}
+
+.text-green-600 {
+  color: #66ff99 !important;
+}
+
+.text-purple-600 {
+  color: #cc99ff !important;
+}
+
+.text-orange-600 {
+  color: #ffaa66 !important;
+}
+
+.text-red-600 {
+  color: #ff6666 !important;
+}
+
+/* Request status indicators */
+.bg-green-100 {
+  background-color: #1a3a2a !important;
+}
+
+.text-green-800 {
+  color: #99ffcc !important;
+}
+
+.bg-red-100 {
+  background-color: #3a1a1a !important;
+}
+
+.text-red-800 {
+  color: #ffaaaa !important;
+}
+
+.border-green-200 {
+  border-color: #336644 !important;
+}
+
+.border-red-200 {
+  border-color: #664433 !important;
 }
