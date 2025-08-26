@@ -1,27 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-
-// Custom tooltip component
-const Tooltip = ({ children, content }: { children: React.ReactNode, content: string }) => {
-  const [showTooltip, setShowTooltip] = useState(false)
-  
-  return (
-    <div 
-      className="relative inline-block"
-      onMouseEnter={() => setShowTooltip(true)}
-      onMouseLeave={() => setShowTooltip(false)}
-    >
-      {children}
-      {showTooltip && (
-        <div className="absolute z-50 px-2 py-1 text-xs text-black bg-white border border-white rounded shadow-lg -top-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
-          {content}
-          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-white"></div>
-        </div>
-      )}
-    </div>
-  )
-}
+import Tooltip from './Tooltip'
 
 // Use text-based tokenization fallback only to avoid WASM issues
 
@@ -142,7 +122,7 @@ export default function TokenVisualization({ tokenBreakdown, model }: TokenVisua
                 {tokenBreakdown.prompt.map((tokenId, index) => {
                   // Use text-based breakdown
                   const displayText = promptTokenTexts[index] || `Token ${index}`;
-                  const tooltipContent = `\"${displayText}\" | Token #${index + 1} (ID: ${tokenId})`;
+                  const tooltipContent = `"${displayText}"`;
                   return (
                     <Tooltip key={`prompt-${index}`} content={tooltipContent}>
                       <span
@@ -175,7 +155,7 @@ export default function TokenVisualization({ tokenBreakdown, model }: TokenVisua
                 {tokenBreakdown.response.map((tokenId, index) => {
                   // Use text-based breakdown
                   const displayText = responseTokenTexts[index] || `Token ${index}`;
-                  const tooltipContent = `\"${displayText}\" | Token #${index + 1} (ID: ${tokenId})`;
+                  const tooltipContent = `"${displayText}"`;
                   return (
                     <Tooltip key={`response-${index}`} content={tooltipContent}>
                       <span
@@ -209,7 +189,7 @@ export default function TokenVisualization({ tokenBreakdown, model }: TokenVisua
               </div>
             </div>
             <div className="mt-2 text-gray-400 text-xs">
-              Each colored box represents one token showing the actual text content. Hover over tokens to see details and numeric IDs.
+              Each colored box represents one token showing the actual text content. Hover over tokens to see details.
             </div>
           </div>
         </div>
