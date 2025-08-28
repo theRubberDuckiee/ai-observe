@@ -32,7 +32,7 @@ export default function Tooltip({ children, content, className = '' }: TooltipPr
       </div>
       {showTooltip && (
         <div 
-          className="fixed z-50 px-2 py-1 text-xs text-white bg-gray-900 border border-white rounded shadow-lg whitespace-nowrap pointer-events-none"
+          className="fixed z-50 px-2 py-1 text-xs text-black bg-gray-900 border border-white rounded shadow-lg whitespace-nowrap pointer-events-none"
           style={{
             left: `${mousePos.x}px`,
             top: `${mousePos.y}px`,
